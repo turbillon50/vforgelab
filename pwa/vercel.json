@@ -1,0 +1,37 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/mia/api/chat",
+      "destination": "https://sala.vforge.site/mia/api/chat"
+    },
+    {
+      "source": "/mia/api/energia",
+      "destination": "https://sala.vforge.site/mia/api/energia"
+    },
+    {
+      "source": "/mia/api/branches",
+      "destination": "https://sala.vforge.site/mia/api/branches"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/mia/api/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
+  ]
+}
