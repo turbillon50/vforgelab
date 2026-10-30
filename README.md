@@ -108,6 +108,10 @@ server-verified user session before these routes can be exposed to it.
 
 ## Verification
 
+Live database, memory and NVIDIA inference checks passed on 2026-10-30.
+See [the observed results](docs/VERIFICATION.md) and
+[the frontend integration handoff](docs/INTEGRATION.md).
+
 ```sh
 npm test
 ```

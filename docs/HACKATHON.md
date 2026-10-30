@@ -1,36 +1,39 @@
-# Hackathon submission checklist
+# Hackathon delivery checklist
 
-Verified: 2026-10-30. Event: Nebius × NVIDIA Global AI Hackathon.
+Updated 2026-10-30. Event: Nebius × NVIDIA Global AI Hackathon.
 
 Official sources:
 - https://nebiusglobalaihackathon.devpost.com/rules
-- https://nebiusglobalaihackathon.devpost.com/details/faqs
+- https://nebiusglobalaihackathon.devpost.com/
 
-Deadline: October 30, 2026, 10:00 AM PDT / 17:00 UTC / 11:00 AM Mexico City / 12:00 PM Cancun.
+Deadline: October 30, 2026, 10:00 AM PDT / 17:00 UTC / 11:00 AM Mexico City /
+12:00 PM Cancun.
 
-## Required delivery
+## Implemented and verified
 
-- [ ] Working application with a runtime call to Nebius Token Factory or execution on Nebius AI Cloud, using at least one NVIDIA open-source model.
-- [ ] Selected track: Coding and Agentic Engineering, Best Apps and Agents, Personal AI, or Physical AI.
-- [ ] Description of the problem, audience, features and how the project works.
-- [ ] URL to a working demo, hosted application or test build (Physical AI has an exception).
+- [x] Independent application backend and own PostgreSQL data store.
+- [x] Real NVIDIA model call on Nebius Token Factory, with nonempty output.
+- [x] Persistent conversations, explicit memory and inference traces.
 - [x] Public source repository: https://github.com/turbillon50/vforgelab
-- [x] Open-source license file: MIT.
-- [ ] All source code, necessary assets and reproducible setup/run instructions.
-- [ ] README documenting actual NVIDIA model, Nebius integration, where Token Factory helped, and other Nebius services used.
-- [ ] Public YouTube demonstration video under 3 minutes showing the application actually working.
-- [ ] Feedback on the Nebius and NVIDIA tools/models actually used.
-- [ ] Written explanation of significant changes made during the eligible period if based on an existing project.
-- [ ] English materials or English translations, including video, description and testing instructions.
-- [ ] Free judge access maintained through the end of judging, December 23, 2026 at 12:00 PM Pacific Time.
-- [ ] Completed and submitted Devpost entry before the deadline.
+- [x] MIT license.
+- [x] Source code and reproducible setup/run instructions.
+- [x] README documenting the actual NVIDIA model and Nebius integration.
+- [x] English project description, significant changes and tool feedback drafted.
+- [x] Automated tests and live database/model verification recorded in VERIFICATION.md.
 
-For Physical AI, include at least one minute showing operating hardware, or key modules in action when there is no hardware.
+## Remaining submission work
 
-## Hosting clarification
+- [ ] Verify the public user-facing demo/test-build URL.
+- [ ] Select the track in Devpost; Best Apps and Agents matches this backend.
+- [ ] Publish and verify a public YouTube demo of three minutes or less.
+- [ ] Finalize English materials or translations for the actual submitted client and video.
+- [ ] Complete and submit Devpost, then verify the confirmation.
+- [ ] Maintain the judge access required by the official rules.
 
-The frontend may be hosted elsewhere, including Vercel. The required Nebius/NVIDIA runtime integration must still be real. NVIDIA models called only through other providers do not satisfy the platform requirement.
+## Current implementation scope
 
-## Planning boundary
-
-No deployment, domain registration or infrastructure change is authorized yet. Product scope and architecture remain pending discussion with Luis. This document is a checklist, not a claim of implementation or submission.
+Luis authorized a separate NVIDIA-powered VForgeLab with its application and LLM
+database. That backend is implemented and verified. The Telegram frontend is
+being handled separately; its integration contract is INTEGRATION.md and API.md.
+Public deployment, video publication and submission are not claimed by this
+checklist. The required Nebius/NVIDIA runtime integration is already real.

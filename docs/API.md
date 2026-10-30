@@ -31,7 +31,6 @@ precision. Timestamps use ISO 8601 with timezone; JSON payloads use UTF-8.
 | `POST /api/users` | `{ "telegram_id"?: "123456789", "display_name": "Luis" }` | Creates or resolves an application user. A duplicate Telegram ID must not silently transfer ownership. |
 | `POST /api/conversations` | `{ "user_id": "uuid", "title"?: "Infrastructure" }` | Creates a conversation owned by the specified existing user. |
 | `GET /api/conversations/:id/messages?user_id=uuid` | Owner in query | Returns the owner's messages in chronological order. |
-| `POST /api/conversations/:id/messages` | `{ "user_id": "uuid", "role": "user", "content": "Hello" }` | Stores a message after checking conversation ownership. Roles: `system`, `user`, `assistant`, `tool`. Only trusted server/operator callers may set privileged roles. |
 | `POST /api/chat` | `{ "user_id": "uuid", "conversation_id"?: "uuid", "message": "Review these metrics" }` | Creates or checks a conversation, persists the user input, calls the configured NVIDIA model on Nebius, persists the assistant reply and inference trace. |
 | `GET /api/memories?user_id=uuid` | Owner in query | Returns only that user's stored memories. |
 | `POST /api/memories` | `{ "user_id": "uuid", "content": "A saved fact", "metadata"?: {} }` | Persists user-owned text memory; does not invent embeddings. |
@@ -58,7 +57,7 @@ invented data are seeded.
 | `app.telemetry_events` | User, source, actual observation timestamp, metrics JSON. |
 | `llm.conversations` | User-owned conversation title and timestamps. |
 | `llm.messages` | Conversation, user, role, content and timestamp. A composite foreign key enforces matching conversation ownership. |
-| `llm.model_runs` | User/conversation, optional assistant message, provider/model, status, usage JSON, latency, trace and sanitized error code. |
+| `llm.model_runs` | User/conversation, associated input message, provider/model, status, usage JSON, latency, trace and sanitized error code. |
 | `llm.memories` | User-owned text, metadata and optional real embedding. |
 
 `llm.model_runs.status` is one of `pending`, `running`, `succeeded`, `failed`.
@@ -83,6 +82,6 @@ The application calls NVIDIA through Nebius at runtime using server-side
 credentials and a configured model identifier. Do not claim readiness from a
 configured environment variable alone: verify one real successful model call.
 Existing VForge infrastructure may provide observations through a backend adapter;
-never expose its operator keys to clients or copy ALIX's private memory by default.
+keep its operator keys and existing private memories inside their own services.
 This initial API contains no Telegram bot, Mini App, device-sensor collection,
 payment, deployment or infrastructure-control endpoints.

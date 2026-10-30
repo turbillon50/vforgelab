@@ -117,14 +117,14 @@ working evidence before it is described as implemented.
 
 - [ ] Public repository URL resolves for a signed-out reviewer.
 - [ ] Open-source `LICENSE` is present and visible on the repository page.
-- [ ] README setup and run instructions match the final code.
+- [x] README setup and run instructions match the final code.
 - [ ] Working hosted demo or test-build URL has been checked.
-- [ ] Real NVIDIA-on-Nebius inference produces nonempty assistant output.
-- [ ] Database contains the demonstrated conversation, messages and model run.
+- [x] Real NVIDIA-on-Nebius inference produces nonempty assistant output.
+- [x] Database contains the demonstrated conversation, messages and model run.
 - [ ] Public YouTube video is three minutes or shorter.
 - [ ] Description and track match the behavior actually demonstrated.
-- [ ] Significant hackathon changes to the existing foundation are disclosed.
-- [ ] Nebius/NVIDIA feedback is included.
+- [x] Significant hackathon changes to the existing foundation are disclosed.
+- [x] Nebius/NVIDIA feedback is included.
 - [ ] Credentials, private connection strings and private user data are absent
       from the public repository and video.
 - [ ] Devpost entry is submitted and its confirmation is checked.
