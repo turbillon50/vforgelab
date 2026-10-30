@@ -36,3 +36,7 @@ No se desplegó ni se cambió la configuración de producción.
 ## Relación con el backend nuevo de VForgeLab
 
 El backend `src/server.mjs` de este repositorio tiene un contrato diferente y usa una credencial de servicio. Esta interfaz conserva el contrato `/mia` del runtime existente; no entrega `VFORGELAB_API_KEY` al navegador ni declara que el backend nuevo esté conectado. Integrarlo requiere un adaptador de sesión verificada en el servidor y endpoints de lectura de telemetría/escaneo. La vista de diseño no depende de ese adaptador.
+
+## Vercel release
+
+Vercel serves this directory at the project root. The three explicit /mia/api routes forward to the existing MIA runtime on sala.vforge.site, retaining owner authentication and keeping provider credentials on the backend. Deletion is not exposed. This release does not yet bridge the UI to the separate persistent src/server.mjs API.
