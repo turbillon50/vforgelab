@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {gpuStatus,processCleanup} from './maintenance.mjs';
 import os from 'node:os';
 import { pathToFileURL } from 'node:url';
 import pg from 'pg';
@@ -76,6 +77,8 @@ export async function runCollector({ env = process.env, once = false } = {}) {
       try {
         userId ??= await telemetryUser(pool);
         const metrics = collectMetrics();
+        metrics.gpus = await gpuStatus();
+        metrics.cleanup = await processCleanup(pool);
         await pool.query('INSERT INTO app.telemetry_events (user_id,source,observed_at,metrics) VALUES ($1,$2,$3,$4)', [userId, SOURCE, metrics.observed_at, metrics]);
       } catch (error) {
         console.error(JSON.stringify({ error: errorCode(error) }));
