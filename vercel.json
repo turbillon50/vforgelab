@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "framework": null,
+  "buildCommand": "npm run check",
+  "installCommand": "npm ci --ignore-scripts",
+  "outputDirectory": "pwa",
+  "functions": { "api/index.mjs": { "maxDuration": 180 } },
+  "rewrites": [
+    { "source": "/mia/api/:path*", "destination": "/api/index?route=:path*" }
+  ],
+  "headers": [
+    { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
+  ]
+}

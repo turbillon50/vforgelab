@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/server.mjs",
     "test": "node --test test/*.test.mjs",
-    "check": "node --check src/server.mjs && node --check src/provider.mjs"
+    "check": "node --check src/server.mjs && node --check src/provider.mjs && node --check src/web-adapter.mjs && node --check api/index.mjs && node --check src/collect-telemetry.mjs && node --check pwa/app.js && node --check pwa/sw.js"
   },
   "dependencies": { "pg": "^8.16.3" }
 }

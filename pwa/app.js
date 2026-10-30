@@ -3,25 +3,14 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const apiBase = (document.body.dataset.apiBase || '/mia').replace(/\/$/, '');
-  const storageKey = 'mia.session.token.v1';
-  const viewNames = { alix: 'ALIX', energia: 'Energía', branches: 'BranchKiller' };
+  const viewNames = { alix: 'Chat', energia: 'Energía', branches: 'Escáner' };
   const state = {
-    token: '', connected: false, generation: 0, view: 'alix', history: [],
-    branches: [], filter: 'all', sending: false, energyLoading: false,
+    connected: false, generation: 0, view: 'alix', history: [], newConversation: false,
+    branches: [], branchesConnected: false, branchMessage: '', filter: 'all', sending: false, energyLoading: false,
     branchesLoading: false, chatAbort: null, lastEnergy: null,
   };
   let toastTimer;
 
-  function readToken() {
-    try { return sessionStorage.getItem(storageKey) || ''; } catch { return ''; }
-  }
-  function saveToken(token) {
-    state.token = token;
-    try {
-      if (token) sessionStorage.setItem(storageKey, token);
-      else sessionStorage.removeItem(storageKey);
-    } catch { /* Access continues in memory when browser storage is unavailable. */ }
-  }
   function text(id, value) { $(id).textContent = String(value); }
   function showMessage(id, value) {
     const node = $(id);
@@ -64,12 +53,13 @@
   function updateConnection() {
     document.body.classList.toggle('connected', state.connected);
     text('connection-label', state.connected ? 'Conectado' : 'Conectar');
-    text('side-status', state.connected ? 'Tu organismo está conectado' : 'Conecta tu organismo');
-    text('side-detail', state.connected ? 'Sesión privada · este navegador' : 'Acceso privado');
-    $('disconnect').hidden = !state.token;
+    text('side-status', state.connected ? 'NVIDIA · Nebius conectado' : 'Iniciando conexión…');
+    text('side-detail', state.connected ? 'Historial y memoria en Neon' : 'Sesión de demostración');
+    $('disconnect').hidden = true;
   }
   function resetChat() {
     state.history = [];
+    text('chat-proof', 'Sesión de demostración · historial persistente en Neon.');
     $('conversation').querySelectorAll('.message').forEach((node) => node.remove());
     $('welcome').hidden = false;
     $('message').value = '';
@@ -102,8 +92,6 @@
     state.generation += 1;
     state.chatAbort?.abort();
     state.connected = false;
-    saveToken('');
-    $('access-token').value = '';
     clearPrivateData();
     updateConnection();
     if (message) toast(message);
@@ -112,8 +100,7 @@
   class RequestError extends Error {
     constructor(message, status = 0) { super(message); this.status = status; }
   }
-  async function request(path, { method = 'GET', body, token = state.token, signal, timeout = 25000 } = {}) {
-    if (!token) throw new RequestError('Conecta tu espacio para consultar tu servidor.', 401);
+  async function request(path, { method = 'GET', body, signal, timeout = 25000 } = {}) {
     const controller = new AbortController();
     const abort = () => controller.abort();
     if (signal?.aborted) controller.abort();
@@ -122,11 +109,11 @@
     try {
       const response = await fetch(apiBase + path, {
         method, cache: 'no-store', credentials: 'same-origin', signal: controller.signal,
-        headers: { 'Content-Type': 'application/json', 'x-sala-token': token },
+        headers: { 'Content-Type': 'application/json' },
         ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
       });
       if (response.status === 401 || response.status === 403) {
-        throw new RequestError('El acceso no fue aceptado. Revisa tu token.', response.status);
+        throw new RequestError('La sesión terminó. Pulsa Conectar para continuar.', response.status);
       }
       if (!response.ok) throw new RequestError('El servidor no pudo completar la consulta. Intenta otra vez.', response.status);
       const result = await response.json().catch(() => { throw new RequestError('El servidor devolvió una respuesta que no se pudo leer.'); });
@@ -142,7 +129,7 @@
     }
   }
   function handleAccessError(error) {
-    if ((error.status === 401 || error.status === 403) && state.token) {
+    if ((error.status === 401 || error.status === 403) && state.connected) {
       disconnect('La sesión terminó. Vuelve a conectar tu espacio.');
     }
   }
@@ -182,34 +169,38 @@
     $('connect-dialog').close();
   });
 
+  async function bootstrapSession() {
+    showMessage('connect-error', 'Conectando con VForgeLab…');
+    try {
+      const session = await request('/api/session', { method: 'POST', body: {} });
+      if (!state.history.length && Array.isArray(session.messages)) {
+        for (const item of session.messages) {
+          if (item && ['user', 'assistant'].includes(item.role) && typeof item.content === 'string') {
+            message(item.role, item.content);
+            state.history.push({ role: item.role, content: item.content });
+          }
+        }
+      }
+      state.connected = true;
+      updateConnection();
+      showMessage('connect-error', '');
+      $('connect-dialog').close();
+      loadEnergy();
+      if (state.view === 'branches') loadBranches();
+    } catch (error) {
+      state.connected = false;
+      updateConnection();
+      showMessage('connect-error', error.message);
+      showMessage('chat-notice', error.message);
+    }
+  }
   $('connect-form').addEventListener('submit', async (event) => {
     event.preventDefault();
-    const token = $('access-token').value.trim();
-    if (!token) return;
     const submit = event.currentTarget.querySelector('[type="submit"]');
     submit.disabled = true;
     submit.setAttribute('aria-busy', 'true');
-    showMessage('connect-error', 'Comprobando acceso…');
-    const generation = state.generation;
-    try {
-      const energy = await request('/api/energia', { token });
-      if (generation !== state.generation) return;
-      saveToken(token);
-      state.connected = true;
-      state.generation += 1;
-      updateConnection();
-      renderEnergy(energy);
-      $('access-token').value = '';
-      $('connect-dialog').close();
-      showMessage('connect-error', '');
-      toast('Tu espacio está conectado.');
-      if (state.view === 'branches') loadBranches();
-    } catch (error) {
-      showMessage('connect-error', error.message);
-    } finally {
-      submit.disabled = false;
-      submit.removeAttribute('aria-busy');
-    }
+    try { await bootstrapSession(); }
+    finally { submit.disabled = false; submit.removeAttribute('aria-busy'); }
   });
 
   function message(role, content) {
@@ -238,6 +229,7 @@
   $('new-chat').addEventListener('click', () => {
     if (state.sending) return toast('Espera a que termine la respuesta para abrir otro chat.');
     resetChat();
+    state.newConversation = true;
     $('message').focus();
   });
   $('chat-form').addEventListener('submit', async (event) => {
@@ -246,7 +238,6 @@
     if (!content || state.sending) return;
     if (!state.connected) { openDialog('connect-dialog'); return; }
     const generation = state.generation;
-    const priorHistory = state.history.slice(-8);
     state.sending = true;
     $('send').disabled = true;
     $('chat-form').setAttribute('aria-busy', 'true');
@@ -254,12 +245,12 @@
     message('user', content);
     $('message').value = '';
     resizeComposer();
-    const pending = message('assistant pending', 'ALIX está pensando…');
+    const pending = message('assistant pending', 'Nemotron está pensando…');
     state.chatAbort = new AbortController();
     try {
       const result = await request('/api/chat', {
-        method: 'POST', body: { mensaje: content, historial: priorHistory },
-        timeout: 100000, signal: state.chatAbort.signal,
+        method: 'POST', body: { mensaje: content, ...(state.newConversation ? { new_conversation: true } : {}) },
+        timeout: 130000, signal: state.chatAbort.signal,
       });
       if (generation !== state.generation) return;
       if (typeof result.texto !== 'string' || !result.texto.trim()) {
@@ -267,6 +258,9 @@
       }
       pending.classList.remove('pending');
       pending.textContent = result.texto;
+      const latency = finite(result.latency_ms);
+      text('chat-proof', 'NVIDIA Nemotron' + (latency === null ? '' : ' · ' + numberLabel(latency, 0) + ' ms') + ' · respuesta guardada');
+      state.newConversation = false;
       state.history.push({ role: 'user', content }, { role: 'assistant', content: result.texto });
       state.history = state.history.slice(-8);
     } catch (error) {
@@ -321,10 +315,11 @@
         element('small', '', online ? 'En ejecución' : typeof process.estado === 'string' ? process.estado : 'Sin estado'));
       return row;
     });
-    $('processes').replaceChildren(...(rows.length ? rows : [element('div', 'empty-state', 'El servidor no devolvió procesos.') ]));
-    state.lastEnergy = new Date();
-    text('energy-updated', 'Última lectura: ' + state.lastEnergy.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-    setEnergyBadge('Lectura recibida', true);
+    $('processes').replaceChildren(...(rows.length ? rows : [element('div', 'empty-state', 'No se han conectado lecturas de procesos.') ]));
+    state.lastEnergy = data.observed_at && Number.isFinite(Date.parse(data.observed_at)) ? new Date(data.observed_at) : null;
+    text('energy-updated', state.lastEnergy ? 'Medido: ' + state.lastEnergy.toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'medium' }) : 'Fecha de observación no disponible.');
+    const fresh = state.lastEnergy && Date.now() - state.lastEnergy.getTime() < 90000;
+    setEnergyBadge(fresh ? 'Lectura reciente' : 'Última lectura guardada', Boolean(fresh));
     showMessage('energy-error', '');
   }
   async function loadEnergy() {
@@ -353,6 +348,12 @@
   $('refresh-energy').addEventListener('click', loadEnergy);
 
   function renderBranches() {
+    if (!state.branchesConnected) {
+      text('branch-count', 'Sin conectar');
+      $('branch-space').replaceChildren(document.createTextNode('—'), element('small', '', ' GB'));
+      $('branch-list').replaceChildren(element('div', 'empty-state', state.branchMessage || 'Escáner de copias de trabajo sin conectar.'));
+      return;
+    }
     const clean = state.branches.filter((item) => item.limpio === true);
     const cleanMb = clean.reduce((sum, item) => sum + item.mb, 0);
     $('branch-space').replaceChildren(document.createTextNode(numberLabel(cleanMb / 1024, 2)), element('small', '', ' GB'));
@@ -395,10 +396,13 @@
       const result = await request('/api/branches', { timeout: 60000 });
       if (generation !== state.generation) return;
       if (!Array.isArray(result.worktrees)) throw new RequestError('El servidor no devolvió una lista de copias de trabajo.');
+      state.branchesConnected = result.connected !== false;
+      state.branchMessage = typeof result.message === 'string' ? result.message : '';
       state.branches = result.worktrees.filter((item) => item && typeof item.worktree === 'string' && finite(item.mb) !== null && Number(item.mb) >= 0)
         .map((item) => ({ worktree: item.worktree, mb: Number(item.mb), limpio: item.limpio === true }))
         .sort((a, b) => b.mb - a.mb);
       renderBranches();
+
     } catch (error) {
       if (generation !== state.generation) return;
       handleAccessError(error);
@@ -428,32 +432,20 @@
     if (state.connected && state.view === 'energia') loadEnergy();
   });
 
-  // Tokens in URLs are deliberately unsupported: they leak into browser history and logs.
+  // Service credentials are never accepted from the public browser.
   const url = new URL(location.href);
   if (url.searchParams.has('tok')) {
     url.searchParams.delete('tok');
     history.replaceState(null, '', url.pathname + url.search + url.hash);
-    toast('Pega el token en Conectar para abrir una sesión privada.');
   }
+  try { sessionStorage.removeItem('mia.session.token.v1'); } catch {}
   navigate(location.hash.slice(1), { updateHash: false, load: false });
   updateConnection();
-  const remembered = readToken();
-  if (remembered) {
-    saveToken(remembered);
-    request('/api/energia').then((result) => {
-      if (state.token !== remembered) return;
-      state.connected = true;
-      updateConnection();
-      renderEnergy(result);
-      if (state.view === 'branches') loadBranches();
-    }).catch((error) => {
-      handleAccessError(error);
-      if (state.token) toast(error.message);
-    });
-  }
+  bootstrapSession();
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {
       // The app remains usable online if the host does not serve a service worker.
     });
   }
 })();
+

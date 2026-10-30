@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "VForgeLab · MIA",
-  "short_name": "MIA",
-  "description": "Compañía, pulso y cuidado de tu mundo digital.",
+  "name": "VForgeLab",
+  "short_name": "VForgeLab",
+  "description": "NVIDIA, memoria y telemetría de tu laboratorio digital.",
   "lang": "es-MX",
   "start_url": "./#alix",
   "scope": "./",
@@ -31,3 +31,4 @@
     }
   ]
 }
+

@@ -1,7 +1,7 @@
 'use strict';
 
-const CACHE_PREFIX = 'mia-shell-' + encodeURIComponent(new URL(self.registration.scope).pathname) + '-';
-const CACHE_NAME = CACHE_PREFIX + 'v3';
+const CACHE_PREFIX = 'vforgelab-shell-' + encodeURIComponent(new URL(self.registration.scope).pathname) + '-';
+const CACHE_NAME = CACHE_PREFIX + 'v4';
 const SHELL_FILES = ['index.html', 'styles.css', 'premium.css', 'vedika-materials.css', 'app.js', 'icon.svg', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest'];
 const shellUrls = new Set(SHELL_FILES.map((path) => new URL(path, self.registration.scope).href));
 const shellIndex = new URL('index.html', self.registration.scope).href;
@@ -22,7 +22,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
   // API responses, tokens, chat history, telemetry and branches never enter Cache Storage.
-  if (url.pathname.includes('/api/') || request.headers.has('x-sala-token')) return;
+  if (url.pathname.includes('/api/')) return;
   const isNavigation = request.mode === 'navigate' && url.href.startsWith(self.registration.scope);
   if (!isNavigation && !shellUrls.has(url.href)) return;
   event.respondWith((async () => {
@@ -39,3 +39,4 @@ self.addEventListener('fetch', (event) => {
     }
   })());
 });
+

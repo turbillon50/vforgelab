@@ -98,6 +98,20 @@ CREATE INDEX IF NOT EXISTS model_runs_conversation_created_idx ON llm.model_runs
 CREATE INDEX IF NOT EXISTS model_runs_trace_idx ON llm.model_runs (trace_id);
 CREATE INDEX IF NOT EXISTS memories_user_created_idx ON llm.memories (user_id, created_at DESC);
 
+CREATE TABLE IF NOT EXISTS app.web_sessions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES app.users(id),
+  conversation_id uuid,
+  ip_hash text NOT NULL,
+  requests integer NOT NULL DEFAULT 0,
+  last_window timestamptz NOT NULL DEFAULT now(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  expires_at timestamptz NOT NULL,
+  FOREIGN KEY (conversation_id, user_id) REFERENCES llm.conversations(id, user_id)
+);
+CREATE INDEX IF NOT EXISTS web_sessions_ip_created_idx ON app.web_sessions (ip_hash, created_at DESC);
+CREATE INDEX IF NOT EXISTS web_sessions_expiry_idx ON app.web_sessions (expires_at);
+
 COMMENT ON SCHEMA app IS 'VForgeLab application identities, projects and telemetry';
 COMMENT ON SCHEMA llm IS 'Persisted conversation history, inference traces and user memories; not model weights';
 COMMENT ON COLUMN llm.model_runs.error_code IS 'Sanitized application error code only; never provider response bodies, credentials or raw exception messages';
