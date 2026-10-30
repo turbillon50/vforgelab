@@ -1,0 +1,83 @@
+/* Selected original materials from turbillon50/vedika77,
+ * src/app/vedika-visual-system.css. Adapted to MIA selectors.
+ * Source applications belong to Luis's ecosystem; see DESIGN-SOURCES.md. */
+:root {
+  --vs-page: #08080c;
+  --vs-page-deep: #0c0f16;
+  --vs-surface: #101521;
+  --vs-surface-raised: #151b28;
+  --vs-surface-soft: #192237;
+  --vs-ink: #f7f9fd;
+  --vs-ink-soft: rgba(231, 238, 249, .76);
+  --vs-line: rgba(194, 215, 246, .12);
+  --vs-line-strong: rgba(125, 184, 255, .34);
+  --vs-blue: #7db8ff;
+  --vs-blue-soft: rgba(125, 184, 255, .12);
+  --vs-shadow: 0 22px 64px -42px rgba(0, 0, 0, .84);
+  --vs-specular: rgba(255, 255, 255, .09);
+}
+.workspace { background: var(--vs-page); }
+.workspace:before {
+  background:
+    linear-gradient(118deg, transparent 2%, rgba(77, 130, 205, .085) 35%, transparent 56%),
+    linear-gradient(292deg, transparent 22%, rgba(149, 188, 246, .045) 48%, transparent 74%),
+    linear-gradient(145deg, #08080c 0%, #0b111b 48%, #080a10 100%);
+  background-size: 170% 170%, 190% 190%, 100% 100%;
+  animation: vedika-material-drift 22s ease-in-out infinite alternate;
+}
+@keyframes vedika-material-drift {
+  from { background-position: 0% 36%, 100% 62%, 0 0; }
+  to { background-position: 100% 64%, 0% 38%, 0 0; }
+}
+.metric, .branch-summary {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--vs-line);
+  background: var(--vs-surface);
+  color: var(--vs-ink);
+  box-shadow: var(--vs-shadow), inset 0 1px 0 var(--vs-specular);
+}
+.metric:before, .branch-summary:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(128deg, rgba(255, 255, 255, .09), transparent 28%);
+  opacity: .72;
+}
+.nav-item.active {
+  border-color: color-mix(in srgb, var(--vs-blue) 26%, transparent);
+  background: color-mix(in srgb, var(--vs-blue) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--vs-blue), inset 0 1px 0 var(--vs-specular);
+}
+.topbar {
+  position: sticky; top: 0; z-index: 25;
+  border-bottom-color: var(--vs-line);
+  background: color-mix(in srgb, var(--vs-page) 88%, transparent);
+  box-shadow: 0 16px 40px -38px rgba(31, 57, 95, .48), inset 0 1px 0 var(--vs-specular);
+}
+#main { max-width: 1280px; }
+button, a { touch-action: manipulation; }
+.metric-number, .branch-size, .disk-ring strong, .disk-description strong { font-variant-numeric: tabular-nums; }
+@media(max-width:760px) {
+  .page-heading { display: block; }
+  .live-badge { display: inline-block; margin-top: 18px; }
+  .eyebrow, .section-top .eyebrow, .identity-label { font-size: 10px; }
+  .composer-note { font-size: 10px; }
+  .quiet-button { min-height: 44px; }
+  .filters button, .review-button { min-height: 44px; }
+}
+@media(prefers-reduced-motion:reduce) { .workspace:before { animation: none; } }
+/* Preserve the teacher shell's readable supporting type at phone sizes. */
+@media(max-width:760px) {
+  .eyebrow, .section-top .eyebrow, .identity-label,
+  .metric-label, .metric-label>span, .disk-ring span,
+  .disk-description small, .metric-foot, .load-periods span,
+  .composer-note, .composer-bottom>span, .live-badge,
+  .daemon-strip small, .process-row small, .updated,
+  .branch-summary>div>span, .branch-name small,
+  .branch-state, .branch-disclaimer, .dialog-head .eyebrow { font-size:11px; }
+  .quiet-button, .filters button, .review-button,
+  .suggestions button { font-size:12px; }
+}
