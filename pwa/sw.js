@@ -2,7 +2,7 @@
 
 const CACHE_PREFIX = 'vforgelab-shell-' + encodeURIComponent(new URL(self.registration.scope).pathname) + '-';
 const CACHE_NAME = CACHE_PREFIX + 'v4';
-const SHELL_FILES = ['index.html', 'styles.css', 'premium.css', 'vedika-materials.css', 'app.js', 'icon.svg', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest'];
+const SHELL_FILES = ['index.html', 'styles.css', 'premium.css', 'vedika-materials.css', 'app.js', 'show.js', 'icon.svg', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest'];
 const shellUrls = new Set(SHELL_FILES.map((path) => new URL(path, self.registration.scope).href));
 const shellIndex = new URL('index.html', self.registration.scope).href;
 

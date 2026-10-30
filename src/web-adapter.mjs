@@ -81,7 +81,7 @@ export function createWebHandler({ pool, env = process.env, infer, log = console
       if (!env.VFORGELAB_API_KEY || env.VFORGELAB_API_KEY.length < 32) fail('service_unavailable',503);
       const path = route(req);
       if (req.method === 'GET' && path === 'health') return send(res,200,{ok:true,status:'ok'});
-      if (!['session','chat','energia','branches'].includes(path)) fail('not_found',404);
+      if (!['session','chat','energia','branches','limpiar'].includes(path)) fail('not_found',404);
       if (['POST','DELETE','PUT','PATCH'].includes(req.method) && !sameOrigin(req)) fail('origin_rejected',403);
       const signed = verifySession(cookieValue(req),env.VFORGELAB_API_KEY);
       let session = null;
@@ -122,9 +122,15 @@ export function createWebHandler({ pool, env = process.env, infer, log = console
         const reading = latest.rows[0];
         if (!reading) return send(res,200,{ok:true,available:false,observed_at:null,disco:null,ram:null,load:[],procesos:[],message:'Todavía no hay una lectura del servidor.'});
         const m = reading.metrics || {};
-        return send(res,200,{ok:true,available:true,source:'server-hetzner',observed_at:reading.observed_at,stale:Date.now()-new Date(reading.observed_at).getTime()>120000,disco:m.disco || null,ram:m.ram || null,load:Array.isArray(m.load)?m.load:[],procesos:Array.isArray(m.procesos)?m.procesos:[],daemon:m.daemon || null});
+        return send(res,200,{ok:true,available:true,source:'server-hetzner',observed_at:reading.observed_at,stale:Date.now()-new Date(reading.observed_at).getTime()>120000,disco:m.disco || null,ram:m.ram || null,load:Array.isArray(m.load)?m.load:[],procesos:Array.isArray(m.procesos)?m.procesos:[],daemon:m.daemon || null,gpus:m.gpus || [],cleanup:m.cleanup || null});
       }
-      if (path === 'branches' && req.method === 'GET') return send(res,200,{ok:true,connected:false,worktrees:[],message:'Escáner sin conectar. No se ha ejecutado ninguna limpieza.'});
+      if (path === 'limpiar' && req.method === 'POST') {
+        const recent=await pool.query("SELECT id FROM app.telemetry_events WHERE source='cleanup-request' AND created_at>now()-interval '2 minutes' ORDER BY created_at DESC LIMIT 1");
+        if(recent.rows.length)return send(res,202,{ok:true,status:'already_requested'});
+        await pool.query("INSERT INTO app.telemetry_events(user_id,source,metrics) VALUES($1,'cleanup-request',$2)",[session.user_id,{status:'queued'}]);
+        return send(res,202,{ok:true,status:'queued'});
+      }
+      if (path === 'branches'  && req.method === 'GET') return send(res,200,{ok:true,connected:false,worktrees:[],message:'Escáner sin conectar. No se ha ejecutado ninguna limpieza.'});
       if (path === 'chat' && req.method === 'POST') {
         const b = await body(req);
         if (typeof b.mensaje !== 'string' || !b.mensaje.trim() || b.mensaje.length>16000) fail('invalid_message');

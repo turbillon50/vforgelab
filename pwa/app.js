@@ -284,6 +284,7 @@
     $('energy-live').replaceChildren(dot, document.createTextNode(label));
   }
   function renderEnergy(data) {
+    window.dispatchEvent(new CustomEvent("vfl-energy",{detail:data}));
     const pct = finite(String(data.disco?.pct ?? '').replace('%', ''));
     const totalRam = finite(data.ram?.total_mb);
     const freeRam = finite(data.ram?.libre_mb);
