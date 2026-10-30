@@ -23,7 +23,7 @@ Deadline: October 30, 2026, 10:00 AM PDT / 17:00 UTC / 11:00 AM Mexico City /
 
 ## Remaining submission work
 
-- [ ] Verify the public user-facing demo/test-build URL.
+- [x] Public demo verified: https://vforgelab.vercel.app/
 - [ ] Select the track in Devpost; Best Apps and Agents matches this backend.
 - [ ] Publish and verify a public YouTube demo of three minutes or less.
 - [ ] Finalize English materials or translations for the actual submitted client and video.

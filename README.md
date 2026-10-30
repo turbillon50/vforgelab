@@ -1,5 +1,13 @@
 # VForgeLab
 
+**Live demo:** https://vforgelab.vercel.app/
+
+Production is deployed from `main` to Vercel. The PWA opens a signed demo session
+without requiring visitors to enter a service token. Its chat uses NVIDIA on
+Nebius and persists conversation history in Neon. The Energy view receives real
+Hetzner measurements collected every 15 seconds. The scanner is visibly marked
+as disconnected; no cleanup operation is enabled.
+
 A small, independent application backend for persistent conversations, explicit
 user memory and traceable NVIDIA inference on Nebius. Built for the **Nebius ×
 NVIDIA Global AI Hackathon**.
@@ -16,10 +24,10 @@ require access to the factory's private repositories or operator credentials.
 - Explicit user-owned text memories and a source-labelled telemetry ingestion API.
 - Separate `app` and `llm` schemas for application data and LLM history.
 
-The initial interface is an authenticated HTTP API. Telegram integration,
-connected device sensors, autonomous code execution and infrastructure changes
-are outside this release. Telemetry ingestion is not evidence that a sensor or
-collector is connected. Text memories are stored data, not model training.
+The public interface is a PWA backed by signed demo sessions. The operator HTTP
+API remains service-authenticated. Telegram integration, connected phone sensors
+and autonomous code execution are outside this release. Text memories are stored
+data, not model training.
 
 ## Architecture
 

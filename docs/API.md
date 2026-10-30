@@ -1,5 +1,10 @@
 # VForgeLab API contract
 
+The service-authenticated operator API described below runs internally. The
+deployed PWA uses a separate signed-cookie gateway under `/mia/api/` for session,
+chat, telemetry and scanner status. See INTEGRATION.md. The public gateway never
+accepts a caller-selected user UUID or exposes the operator credential.
+
 This document defines the initial server API. It does not claim an endpoint has
 been deployed or Telegram has been implemented.
 

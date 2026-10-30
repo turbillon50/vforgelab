@@ -1,5 +1,19 @@
 # Verification — 2026-10-30
 
+## Production release
+
+- URL: https://vforgelab.vercel.app/
+- Vercel production deployment from `main`: `dca6de6`.
+- 11 automated tests passed, including signed-cookie integrity and request ownership.
+- Public HTTPS session creation, telemetry read and NVIDIA chat returned HTTP 200.
+- Live model replied `VFORGELAB_LIVE_OK`; the visible browser chat also replied
+  `VForgeLab está en línea.` with a measured 589 ms inference and saved-history status.
+- Browser inspection confirmed the premium shell, automatic session and actual
+  disk/RAM/load values in Energy. The collector is active every 15 seconds.
+- All repository branches have been incorporated into `main`; only `main` remains.
+
+The earlier backend-only verification below is retained as the initial baseline.
+
 The independent VForgeLab backend was tested on Hetzner against its own Neon
 PostgreSQL database and a real NVIDIA model on Nebius Token Factory.
 
@@ -23,6 +37,6 @@ actual server load and filesystem measurements. No physical device sensor is
 claimed as connected. Timings describe these two requests, not a performance
 guarantee. The service credential stays in protected server configuration.
 
-The integration runtime listens on loopback. A public demo, Telegram client,
-YouTube video and Devpost submission still require their separate completion
-and verification. See [the integration handoff](INTEGRATION.md).
+The operator runtime listens on loopback; the public PWA is deployed on Vercel.
+Telegram, the YouTube video and Devpost submission require their separate
+completion and verification. See [the integration handoff](INTEGRATION.md).

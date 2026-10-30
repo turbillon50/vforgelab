@@ -6,6 +6,14 @@ own application records and LLM memory.
 
 ## Current integration target
 
+Production PWA: https://vforgelab.vercel.app/
+
+Public browser requests use same-origin `/mia/api/session`, `/mia/api/chat` and
+`/mia/api/energia` with a signed HttpOnly cookie. They do not receive the operator
+API key. The production deployment uses server-side Neon and Nebius credentials.
+`app.web_sessions` persists demo sessions and per-session usage limits. Hetzner's
+`vforgelab-telemetry.service` collects actual OS metrics every 15 seconds.
+
 The verified backend runs on Hetzner at `http://127.0.0.1:3248`. This address is
 reachable by another backend on the same host; it is not a public browser URL.
 The checkout and private environment are in
@@ -40,5 +48,5 @@ from a public client. Keep upstream calls on the server.
 
 Device readings can be forwarded to `POST /api/telemetry` with their real source
 and observation time. Telemetry ingestion by itself does not activate sensors.
-The initial server is an integration runtime; public HTTPS routing and the
-Telegram interface belong to the separate frontend integration.
+The internal server remains available for trusted integrations. Public HTTPS and
+the PWA are deployed; the Telegram interface belongs to its separate integration.
