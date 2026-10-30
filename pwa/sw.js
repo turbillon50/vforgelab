@@ -1,6 +1,7 @@
 'use strict';
 
-const CACHE_NAME = 'mia-shell-v2';
+const CACHE_PREFIX = 'mia-shell-' + encodeURIComponent(new URL(self.registration.scope).pathname) + '-';
+const CACHE_NAME = CACHE_PREFIX + 'v3';
 const SHELL_FILES = ['index.html', 'styles.css', 'premium.css', 'vedika-materials.css', 'app.js', 'icon.svg', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest'];
 const shellUrls = new Set(SHELL_FILES.map((path) => new URL(path, self.registration.scope).href));
 const shellIndex = new URL('index.html', self.registration.scope).href;
@@ -12,7 +13,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   // Do not delete caches belonging to other apps hosted on the same origin.
   event.waitUntil(caches.keys().then((keys) => Promise.all(
-    keys.filter((key) => key.startsWith('mia-shell-') && key !== CACHE_NAME).map((key) => caches.delete(key)),
+    keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME).map((key) => caches.delete(key)),
   )).then(() => self.clients.claim()));
 });
 

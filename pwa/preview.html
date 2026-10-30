@@ -132,6 +132,18 @@ button, a { touch-action: manipulation; }
   .filters button, .review-button { min-height: 44px; }
 }
 @media(prefers-reduced-motion:reduce) { .workspace:before { animation: none; } }
+/* Preserve the teacher shell's readable supporting type at phone sizes. */
+@media(max-width:760px) {
+  .eyebrow, .section-top .eyebrow, .identity-label,
+  .metric-label, .metric-label>span, .disk-ring span,
+  .disk-description small, .metric-foot, .load-periods span,
+  .composer-note, .composer-bottom>span, .live-badge,
+  .daemon-strip small, .process-row small, .updated,
+  .branch-summary>div>span, .branch-name small,
+  .branch-state, .branch-disclaimer, .dialog-head .eyebrow { font-size:11px; }
+  .quiet-button, .filters button, .review-button,
+  .suggestions button { font-size:12px; }
+}
 </style></head>
 <body>
 <svg class="symbols" aria-hidden="true"><defs>
